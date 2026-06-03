@@ -1,5 +1,6 @@
 import { Heart } from "lucide-react";
 import { MAX_LIVES } from "@/game/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   score: number;
@@ -9,15 +10,16 @@ interface Props {
 }
 
 export function HUD({ score, lives, level, highScore }: Props) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-card px-4 py-3 shadow border-2 border-border">
       <div className="flex items-center gap-2 text-lg font-bold">
         <span className="rounded bg-primary px-2 py-1 text-primary-foreground text-sm">
-          LEVEL {level}
+          {t("level").toUpperCase()} {level}
         </span>
-        <span className="text-muted-foreground text-sm hidden sm:inline">Best: {highScore}</span>
+        <span className="text-muted-foreground text-sm hidden sm:inline">{t("best")}: {highScore}</span>
       </div>
-      <div className="flex items-center gap-1" aria-label={`${lives} of ${MAX_LIVES} lives`}>
+      <div className="flex items-center gap-1" aria-label={t("ofLives", { n: lives, m: MAX_LIVES })}>
         {Array.from({ length: MAX_LIVES }).map((_, i) => (
           <Heart
             key={i}

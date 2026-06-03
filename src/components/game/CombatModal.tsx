@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MONSTER_HP, MONSTER_POINTS, type MonsterKind } from "@/game/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   monster: MonsterKind;
@@ -12,13 +13,9 @@ const MONSTER_EMOJI: Record<MonsterKind, string> = {
   enderman: "👾",
 };
 
-const MONSTER_NAME: Record<MonsterKind, string> = {
-  zombie: "Zombie",
-  skeleton: "Skeleton",
-  enderman: "Enderman",
-};
-
 export function CombatModal({ monster, onEnd }: Props) {
+  const { t } = useI18n();
+  const monsterName = t(monster);
   const maxHp = MONSTER_HP[monster];
   const [hp, setHp] = useState(maxHp);
   const [attacks, setAttacks] = useState(0);

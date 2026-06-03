@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Challenge, PuzzleChallenge } from "@/game/challenges";
+import { useI18n } from "@/i18n";
 
 interface Props {
   challenge: Challenge;
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function ChallengeModal({ challenge, onResult }: Props) {
+  const { t } = useI18n();
   const [picked, setPicked] = useState<string | number | null>(null);
   const [shake, setShake] = useState(false);
 
@@ -27,7 +29,7 @@ export function ChallengeModal({ challenge, onResult }: Props) {
         className={`w-full max-w-md rounded-xl bg-card p-6 shadow-2xl border-4 border-primary ${shake ? "animate-shake" : "animate-pop"}`}
       >
         <h2 className="mb-1 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
-          {isMath ? "Math Challenge" : "Puzzle Challenge"}
+          {isMath ? t("mathChallenge") : t("puzzleChallenge")}
         </h2>
         <p className="mb-4 text-center text-2xl font-extrabold">{challenge.prompt}</p>
 
@@ -63,7 +65,7 @@ export function ChallengeModal({ challenge, onResult }: Props) {
 
         {puzzle?.variant === "oddOneOut" && (
           <p className="mb-2 text-center text-sm text-muted-foreground">
-            Pick the one that's different
+            {t("pickDifferent")}
           </p>
         )}
 

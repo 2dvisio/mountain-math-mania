@@ -1,3 +1,5 @@
+import { useI18n } from "@/i18n";
+
 interface Props {
   onPick: (age: number) => void;
 }
@@ -5,14 +7,13 @@ interface Props {
 const AGES = [6, 7, 8, 9];
 
 export function AgeSelect({ onPick }: Props) {
+  const { t } = useI18n();
   return (
     <div className="grid min-h-[80vh] place-items-center">
       <div className="w-full max-w-lg rounded-2xl border-4 border-primary bg-card p-8 text-center shadow-2xl animate-pop">
         <div className="mb-3 text-5xl">🎂</div>
-        <h2 className="text-3xl font-extrabold">How old are you?</h2>
-        <p className="mt-2 text-muted-foreground">
-          We pick math and puzzles that are just right for your age.
-        </p>
+        <h2 className="text-3xl font-extrabold">{t("pickAge")}</h2>
+        <p className="mt-2 text-muted-foreground">{t("pickAgeSub")}</p>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {AGES.map((age) => (
             <button
@@ -24,7 +25,7 @@ export function AgeSelect({ onPick }: Props) {
             </button>
           ))}
         </div>
-        <p className="mt-4 text-xs text-muted-foreground">You can change this anytime.</p>
+        <p className="mt-4 text-xs text-muted-foreground">{t("changeAnytime")}</p>
       </div>
     </div>
   );
