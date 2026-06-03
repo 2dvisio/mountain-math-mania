@@ -8,6 +8,7 @@ const KIND_STYLES: Record<Exclude<BlockKind, "air">, { bg: string; pattern: stri
   iron: { bg: "bg-stone", pattern: "", label: "iron" },
   gold: { bg: "bg-stone", pattern: "", label: "gold" },
   diamond: { bg: "bg-stone", pattern: "", label: "diamond" },
+  goal: { bg: "", pattern: "", label: "goal" },
 };
 
 const ORE_DOTS: Partial<Record<BlockKind, string>> = {
