@@ -27,40 +27,27 @@ function build(prompt: string, answer: number, spread: number): MathChallenge {
   return { type: "math", prompt, options: shuffle([...opts]), answer };
 }
 
-// ─── AGE 6 ─────────────────────────────────────────────────────────────
-// Add/sub within 20, missing addend, doubles, skip-counting.
-// Combinatorial space ≈ 800+ problems.
-
+// ─── AGE 6 ─── ordered easy → hard
 const age6Gens: Array<() => MathChallenge> = [
+  // doubles (easy)
+  () => {
+    const a = rand(1, 5);
+    return build(`${a} + ${a} = ?`, a * 2, 2);
+  },
   // add within 10
   () => {
     const a = rand(1, 9), b = rand(1, 10 - a);
     return build(`${a} + ${b} = ?`, a + b, 3);
   },
-  // add within 20
+  // compare
   () => {
-    const a = rand(2, 18), b = rand(1, 20 - a);
-    return build(`${a} + ${b} = ?`, a + b, 4);
+    const a = rand(1, 9), b = rand(1, 9);
+    return build(`Which is bigger: ${a} or ${b}?`, Math.max(a, b), 2);
   },
   // sub within 10
   () => {
     const a = rand(2, 10), b = rand(1, a);
     return build(`${a} − ${b} = ?`, a - b, 3);
-  },
-  // sub within 20
-  () => {
-    const a = rand(5, 20), b = rand(1, a);
-    return build(`${a} − ${b} = ?`, a - b, 4);
-  },
-  // missing addend
-  () => {
-    const total = rand(5, 15), a = rand(1, total - 1);
-    return build(`${a} + ? = ${total}`, total - a, 3);
-  },
-  // doubles
-  () => {
-    const a = rand(1, 10);
-    return build(`${a} + ${a} = ?`, a * 2, 3);
   },
   // skip count
   () => {
@@ -68,10 +55,20 @@ const age6Gens: Array<() => MathChallenge> = [
     const start = step * rand(1, 5);
     return build(`${start}, ${start + step}, ${start + 2 * step}, ?`, start + 3 * step, step + 1);
   },
-  // compare (3 choices via reframe to result number)
+  // missing addend
   () => {
-    const a = rand(1, 9), b = rand(1, 9);
-    return build(`Which is bigger: ${a} or ${b}?`, Math.max(a, b), 2);
+    const total = rand(5, 15), a = rand(1, total - 1);
+    return build(`${a} + ? = ${total}`, total - a, 3);
+  },
+  // add within 20
+  () => {
+    const a = rand(2, 18), b = rand(1, 20 - a);
+    return build(`${a} + ${b} = ?`, a + b, 4);
+  },
+  // sub within 20 (hardest)
+  () => {
+    const a = rand(5, 20), b = rand(1, a);
+    return build(`${a} − ${b} = ?`, a - b, 4);
   },
 ];
 
@@ -288,7 +285,23 @@ const POOLS: Record<number, Array<() => MathChallenge>> = {
   9: age9Gens,
 };
 
-export function generateMath(age: number): MathChallenge {
+/**
+ * Pick a generator from a pool ordered easy → hard, biased by difficulty
+ * tier (0..5). Tier 0 selects from the easiest half; tier 5 from the
+ * hardest half; tiers in between slide a window across the pool.
+ */
+function pickByDifficulty<T>(pool: T[], difficulty: number): T {
+  const n = pool.length;
+  if (n <= 1) return pool[0];
+  const d = Math.max(0, Math.min(5, difficulty));
+  const winSize = Math.max(2, Math.ceil(n / 2));
+  const maxStart = n - winSize;
+  const start = Math.round((d / 5) * maxStart);
+  const slice = pool.slice(start, start + winSize);
+  return slice[Math.floor(Math.random() * slice.length)];
+}
+
+export function generateMath(age: number, difficulty = 2): MathChallenge {
   const pool = POOLS[Math.max(6, Math.min(9, age))];
-  return pick(pool)();
+  return pickByDifficulty(pool, difficulty)();
 }
