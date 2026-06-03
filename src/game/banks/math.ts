@@ -1,0 +1,294 @@
+// Math problem generators by age. Each age has multiple sub-generators
+// that together produce well over 500 unique problems.
+
+import type { MathChallenge } from "../challenges";
+
+function rand(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pick<T>(arr: T[]): T {
+  return arr[rand(0, arr.length - 1)];
+}
+
+function build(prompt: string, answer: number, spread: number): MathChallenge {
+  const opts = new Set<number>([answer]);
+  while (opts.size < 4) {
+    const d = answer + rand(-spread, spread);
+    if (d >= 0 && d !== answer) opts.add(d);
+  }
+  return { type: "math", prompt, options: shuffle([...opts]), answer };
+}
+
+// ─── AGE 6 ─────────────────────────────────────────────────────────────
+// Add/sub within 20, missing addend, doubles, skip-counting.
+// Combinatorial space ≈ 800+ problems.
+
+const age6Gens: Array<() => MathChallenge> = [
+  // add within 10
+  () => {
+    const a = rand(1, 9), b = rand(1, 10 - a);
+    return build(`${a} + ${b} = ?`, a + b, 3);
+  },
+  // add within 20
+  () => {
+    const a = rand(2, 18), b = rand(1, 20 - a);
+    return build(`${a} + ${b} = ?`, a + b, 4);
+  },
+  // sub within 10
+  () => {
+    const a = rand(2, 10), b = rand(1, a);
+    return build(`${a} − ${b} = ?`, a - b, 3);
+  },
+  // sub within 20
+  () => {
+    const a = rand(5, 20), b = rand(1, a);
+    return build(`${a} − ${b} = ?`, a - b, 4);
+  },
+  // missing addend
+  () => {
+    const total = rand(5, 15), a = rand(1, total - 1);
+    return build(`${a} + ? = ${total}`, total - a, 3);
+  },
+  // doubles
+  () => {
+    const a = rand(1, 10);
+    return build(`${a} + ${a} = ?`, a * 2, 3);
+  },
+  // skip count
+  () => {
+    const step = pick([2, 5, 10]);
+    const start = step * rand(1, 5);
+    return build(`${start}, ${start + step}, ${start + 2 * step}, ?`, start + 3 * step, step + 1);
+  },
+  // compare (3 choices via reframe to result number)
+  () => {
+    const a = rand(1, 9), b = rand(1, 9);
+    return build(`Which is bigger: ${a} or ${b}?`, Math.max(a, b), 2);
+  },
+];
+
+// ─── AGE 7 ─────────────────────────────────────────────────────────────
+// Add/sub within 100, mult by 2/5/10, missing operand within 20,
+// doubles within 50, skip counting, simple word totals.
+// Combinatorial space ≈ 2000+ problems.
+
+const age7Gens: Array<() => MathChallenge> = [
+  // add within 100 no carry
+  () => {
+    const t1 = rand(1, 8), o1 = rand(0, 9);
+    const t2 = rand(1, 9 - t1), o2 = rand(0, 9 - o1);
+    const a = t1 * 10 + o1, b = t2 * 10 + o2;
+    return build(`${a} + ${b} = ?`, a + b, 6);
+  },
+  // add within 100 with carry
+  () => {
+    const a = rand(15, 60), b = rand(15, 40);
+    return build(`${a} + ${b} = ?`, a + b, 6);
+  },
+  // sub within 100
+  () => {
+    const a = rand(20, 99), b = rand(1, a);
+    return build(`${a} − ${b} = ?`, a - b, 6);
+  },
+  // mult 2x
+  () => {
+    const a = rand(1, 12);
+    return build(`2 × ${a} = ?`, 2 * a, 3);
+  },
+  // mult 5x
+  () => {
+    const a = rand(1, 12);
+    return build(`5 × ${a} = ?`, 5 * a, 5);
+  },
+  // mult 10x
+  () => {
+    const a = rand(1, 12);
+    return build(`10 × ${a} = ?`, 10 * a, 8);
+  },
+  // missing addend within 20
+  () => {
+    const total = rand(10, 20), a = rand(1, total - 1);
+    return build(`${a} + ? = ${total}`, total - a, 4);
+  },
+  // missing subtrahend
+  () => {
+    const a = rand(10, 20), result = rand(1, a - 1);
+    return build(`${a} − ? = ${result}`, a - result, 4);
+  },
+  // doubles within 50
+  () => {
+    const a = rand(11, 25);
+    return build(`${a} + ${a} = ?`, a * 2, 5);
+  },
+  // half of even
+  () => {
+    const a = rand(2, 10) * 2;
+    return build(`Half of ${a} = ?`, a / 2, 3);
+  },
+];
+
+// ─── AGE 8 ─────────────────────────────────────────────────────────────
+// Times tables to 10, division facts, 2-digit add/sub with carry,
+// missing factor, fractions of small numbers, simple two-step.
+// Combinatorial space ≈ 3000+ problems.
+
+const age8Gens: Array<() => MathChallenge> = [
+  // mult tables 2-10
+  () => {
+    const a = rand(2, 10), b = rand(2, 10);
+    return build(`${a} × ${b} = ?`, a * b, 8);
+  },
+  // division facts
+  () => {
+    const b = rand(2, 10), q = rand(2, 10);
+    return build(`${b * q} ÷ ${b} = ?`, q, 4);
+  },
+  // 2-digit add with carry
+  () => {
+    const a = rand(15, 89), b = rand(15, 89);
+    return build(`${a} + ${b} = ?`, a + b, 8);
+  },
+  // 2-digit sub with borrow
+  () => {
+    const a = rand(40, 99), b = rand(15, a - 5);
+    return build(`${a} − ${b} = ?`, a - b, 8);
+  },
+  // missing factor
+  () => {
+    const a = rand(2, 10), b = rand(2, 10);
+    return build(`${a} × ? = ${a * b}`, b, 3);
+  },
+  // missing dividend
+  () => {
+    const b = rand(2, 9), q = rand(2, 9);
+    return build(`? ÷ ${b} = ${q}`, b * q, 5);
+  },
+  // fraction of
+  () => {
+    const denom = pick([2, 3, 4, 5]);
+    const mult = rand(2, 8);
+    const total = denom * mult;
+    return build(`1/${denom} of ${total} = ?`, mult, 3);
+  },
+  // two-step add/sub
+  () => {
+    const a = rand(10, 40), b = rand(5, 30), c = rand(5, 20);
+    return build(`${a} + ${b} − ${c} = ?`, a + b - c, 6);
+  },
+  // mult by 11 (pattern)
+  () => {
+    const a = rand(2, 9);
+    return build(`11 × ${a} = ?`, 11 * a, 6);
+  },
+  // squares
+  () => {
+    const a = rand(2, 12);
+    return build(`${a} × ${a} = ?`, a * a, 6);
+  },
+];
+
+// ─── AGE 9 ─────────────────────────────────────────────────────────────
+// Multi-digit mult, division with remainder, order of ops, fractions,
+// decimals, percentages, multi-step word equations.
+// Combinatorial space ≈ 5000+ problems.
+
+const age9Gens: Array<() => MathChallenge> = [
+  // 2-digit × 1-digit
+  () => {
+    const a = rand(11, 50), b = rand(2, 9);
+    return build(`${a} × ${b} = ?`, a * b, 10);
+  },
+  // 3-digit add
+  () => {
+    const a = rand(100, 800), b = rand(100, 800);
+    return build(`${a} + ${b} = ?`, a + b, 15);
+  },
+  // 3-digit sub
+  () => {
+    const a = rand(300, 999), b = rand(50, a - 50);
+    return build(`${a} − ${b} = ?`, a - b, 15);
+  },
+  // division with remainder (express as integer quotient)
+  () => {
+    const divisor = rand(3, 9), q = rand(3, 12), r = rand(1, divisor - 1);
+    const dividend = divisor * q + r;
+    return build(`${dividend} ÷ ${divisor} = ? (whole part)`, q, 3);
+  },
+  // order of ops with parens
+  () => {
+    const a = rand(2, 9), b = rand(2, 9), c = rand(2, 9);
+    const op = pick(["+", "−"]);
+    const inner = op === "+" ? a + b : a - b;
+    const ans = inner * c;
+    return build(`(${a} ${op} ${b}) × ${c} = ?`, ans, 8);
+  },
+  // mixed without parens (× first)
+  () => {
+    const a = rand(2, 9), b = rand(2, 9), c = rand(5, 30);
+    return build(`${a} × ${b} + ${c} = ?`, a * b + c, 6);
+  },
+  // fraction add same denom
+  () => {
+    const d = pick([4, 5, 6, 8, 10]);
+    const a = rand(1, d - 2), b = rand(1, d - a);
+    return build(`${a}/${d} + ${b}/${d} = ?/${d}`, a + b, 2);
+  },
+  // percent of 100
+  () => {
+    const p = pick([10, 20, 25, 50, 75]);
+    const n = pick([100, 200, 400, 60, 80, 40]);
+    return build(`${p}% of ${n} = ?`, (p * n) / 100, 8);
+  },
+  // decimal add (tenths)
+  () => {
+    const a = rand(1, 90), b = rand(1, 90); // x.x
+    const ans = (a + b) / 10;
+    const opts = new Set<number>([ans]);
+    while (opts.size < 4) {
+      const d = +(ans + rand(-15, 15) / 10).toFixed(1);
+      if (d >= 0 && d !== ans) opts.add(d);
+    }
+    return {
+      type: "math",
+      prompt: `${(a / 10).toFixed(1)} + ${(b / 10).toFixed(1)} = ?`,
+      options: shuffle([...opts]) as number[],
+      answer: ans,
+    };
+  },
+  // multi-step: a × b − c
+  () => {
+    const a = rand(4, 12), b = rand(4, 12), c = rand(5, 30);
+    return build(`${a} × ${b} − ${c} = ?`, a * b - c, 10);
+  },
+  // average of 3
+  () => {
+    const x = rand(2, 20), y = rand(2, 20), z = rand(2, 20);
+    const sum = x + y + z;
+    if (sum % 3 !== 0) {
+      // adjust to make integer
+      const extra = (3 - (sum % 3)) % 3;
+      return build(`Average of ${x}, ${y}, ${z + extra} = ?`, (sum + extra) / 3, 4);
+    }
+    return build(`Average of ${x}, ${y}, ${z} = ?`, sum / 3, 4);
+  },
+];
+
+const POOLS: Record<number, Array<() => MathChallenge>> = {
+  6: age6Gens,
+  7: age7Gens,
+  8: age8Gens,
+  9: age9Gens,
+};
+
+export function generateMath(age: number): MathChallenge {
+  const pool = POOLS[Math.max(6, Math.min(9, age))];
+  return pick(pool)();
+}

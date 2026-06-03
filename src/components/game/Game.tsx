@@ -4,6 +4,7 @@ import { Mountain } from "@/components/game/Mountain";
 import { HUD } from "@/components/game/HUD";
 import { ChallengeModal } from "@/components/game/ChallengeModal";
 import { CombatModal } from "@/components/game/CombatModal";
+import { AgeSelect } from "@/components/game/AgeSelect";
 import {
   type Grid,
   type MonsterKind,
@@ -14,12 +15,20 @@ import {
 import { generateMountain, isAccessible, isCleared } from "@/game/mountain";
 import { randomChallenge, type Challenge } from "@/game/challenges";
 
-type Screen = "title" | "playing" | "challenge" | "combat" | "levelComplete" | "gameOver";
+type Screen =
+  | "title"
+  | "ageSelect"
+  | "playing"
+  | "challenge"
+  | "combat"
+  | "levelComplete"
+  | "gameOver";
 
 const STORAGE_KEY = "mc-mountain-save-v1";
 
 interface SaveData {
   highScore: number;
+  age?: number;
 }
 
 function loadSave(): SaveData {
@@ -43,6 +52,7 @@ function saveSave(data: SaveData) {
 
 export function Game() {
   const [screen, setScreen] = useState<Screen>("title");
+  const [age, setAge] = useState<number>(7);
   const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(MAX_LIVES);
   const [score, setScore] = useState(0);
@@ -55,17 +65,17 @@ export function Game() {
 
   const nextLifeAt = useRef(LIFE_BONUS_EVERY);
 
-  // Load save on mount
   useEffect(() => {
     const s = loadSave();
     setHighScore(s.highScore);
+    if (s.age) setAge(s.age);
   }, []);
 
-  // Persist high score
   useEffect(() => {
     if (score > highScore) {
       setHighScore(score);
-      saveSave({ highScore: score });
+      const existing = loadSave();
+      saveSave({ ...existing, highScore: score });
     }
   }, [score, highScore]);
 
@@ -75,6 +85,13 @@ export function Game() {
     setScore(0);
     setGrid(generateMountain(1));
     nextLifeAt.current = LIFE_BONUS_EVERY;
+    setScreen("ageSelect");
+  }, []);
+
+  const handleAgePick = useCallback((picked: number) => {
+    setAge(picked);
+    const existing = loadSave();
+    saveSave({ ...existing, age: picked });
     setScreen("playing");
   }, []);
 
@@ -89,10 +106,10 @@ export function Game() {
     (row: number, col: number) => {
       if (!isAccessible(grid, row, col)) return;
       setPending({ row, col });
-      setChallenge(randomChallenge(level));
+      setChallenge(randomChallenge(age, level));
       setScreen("challenge");
     },
-    [grid, level],
+    [grid, level, age],
   );
 
   const removeBlockAndReward = useCallback(
@@ -101,7 +118,6 @@ export function Game() {
       const kindPoints = ORE_POINTS[block.kind];
       const totalPoints = kindPoints + bonus;
 
-      // Remove block
       const newGrid = grid.map((r) => r.slice());
       newGrid[row][col] = { kind: "air" };
       setGrid(newGrid);
@@ -121,7 +137,6 @@ export function Game() {
 
       setScore((s) => {
         const next = s + totalPoints;
-        // Life bonus milestones
         while (next >= nextLifeAt.current) {
           setLives((l) => {
             if (l < MAX_LIVES) {
@@ -135,7 +150,6 @@ export function Game() {
         return next;
       });
 
-      // Check level complete
       if (isCleared(newGrid)) {
         window.setTimeout(() => setScreen("levelComplete"), 250);
       } else {
@@ -180,7 +194,6 @@ export function Game() {
         toast.success(`Monster defeated! +${points}`);
         removeBlockAndReward(target.row, target.col, points);
       } else {
-        // Lose a life
         setLives((l) => {
           const next = l - 1;
           if (next <= 0) {
@@ -204,11 +217,20 @@ export function Game() {
   return (
     <div className="min-h-screen sky-bg">
       <div className="mx-auto max-w-3xl px-4 py-4">
-        {screen !== "title" && screen !== "gameOver" && (
+        {screen !== "title" && screen !== "gameOver" && screen !== "ageSelect" && (
           <>
-            <h1 className="mb-3 text-center text-2xl font-extrabold text-foreground drop-shadow-sm">
-              ⛏️ Minecraft Mountain
-            </h1>
+            <div className="mb-3 flex items-center justify-between">
+              <h1 className="text-2xl font-extrabold text-foreground drop-shadow-sm">
+                ⛏️ Minecraft Mountain
+              </h1>
+              <button
+                onClick={() => setScreen("ageSelect")}
+                className="btn-pixel rounded-md bg-secondary px-3 py-1 text-xs font-bold"
+                aria-label="Change age"
+              >
+                Age: {age}
+              </button>
+            </div>
             <HUD score={score} lives={lives} level={level} highScore={highScore} />
             <p className="mt-2 text-center text-xs text-muted-foreground">
               Blocks left: <strong>{blocksLeft}</strong> · Tap a block on the edge to mine it!
@@ -219,9 +241,9 @@ export function Game() {
           </>
         )}
 
-        {screen === "title" && (
-          <TitleScreen highScore={highScore} onStart={startGame} />
-        )}
+        {screen === "title" && <TitleScreen highScore={highScore} onStart={startGame} />}
+
+        {screen === "ageSelect" && <AgeSelect onPick={handleAgePick} />}
 
         {screen === "challenge" && challenge && (
           <ChallengeModal challenge={challenge} onResult={handleChallengeResult} />
@@ -278,7 +300,7 @@ function TitleScreen({ highScore, onStart }: { highScore: number; onStart: () =>
             <li>Solve a math problem or puzzle to mine it.</li>
             <li>Watch out for monsters — tap fast to defeat them!</li>
             <li>Every 500 points gives you an extra ❤️.</li>
-            <li>Clear the whole mountain to finish the level.</li>
+            <li>Bigger mountains scroll — swipe or scroll to see them all.</li>
           </ul>
         </div>
         {highScore > 0 && (

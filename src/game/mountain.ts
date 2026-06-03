@@ -8,9 +8,10 @@ function rand(min: number, max: number) {
 
 /** Generate a side-view mountain. Returns rows top-to-bottom. */
 export function generateMountain(level: number): Grid {
-  const width = Math.min(9 + Math.floor(level / 2), 15);
-  const height = Math.min(6 + Math.floor(level / 2), 10);
-  const peakHeight = Math.min(height, 4 + Math.floor(level / 2));
+  // Grows steadily — bigger levels overflow viewport and require panning.
+  const width = Math.min(9 + Math.floor(level * 1.2), 28);
+  const height = Math.min(6 + Math.floor(level * 0.8), 16);
+  const peakHeight = Math.min(height, 4 + Math.floor(level * 0.7));
 
   // Heights per column (number of blocks stacked from the bottom).
   const center = (width - 1) / 2;
