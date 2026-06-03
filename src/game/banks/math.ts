@@ -29,7 +29,7 @@ function build(prompt: string, answer: number, spread: number): MathChallenge {
 }
 
 // ─── AGE 6 ─── ordered easy → hard
-const age6Gens: Array<() => MathChallenge> = [
+const age6Gens: Array<(lang: Lang) => MathChallenge> = [
   // doubles (easy)
   () => {
     const a = rand(1, 5);
@@ -41,9 +41,9 @@ const age6Gens: Array<() => MathChallenge> = [
     return build(`${a} + ${b} = ?`, a + b, 3);
   },
   // compare
-  () => {
+  (lang) => {
     const a = rand(1, 9), b = rand(1, 9);
-    return build(`Which is bigger: ${a} or ${b}?`, Math.max(a, b), 2);
+    return build(translate(lang, "bigger", { a, b }), Math.max(a, b), 2);
   },
   // sub within 10
   () => {
@@ -74,11 +74,11 @@ const age6Gens: Array<() => MathChallenge> = [
 ];
 
 // ─── AGE 7 ─── ordered easy → hard
-const age7Gens: Array<() => MathChallenge> = [
+const age7Gens: Array<(lang: Lang) => MathChallenge> = [
   // half of even (easy)
-  () => {
+  (lang) => {
     const a = rand(2, 10) * 2;
-    return build(`Half of ${a} = ?`, a / 2, 3);
+    return build(translate(lang, "halfOf", { n: a }), a / 2, 3);
   },
   // mult 10x
   () => {
@@ -130,7 +130,7 @@ const age7Gens: Array<() => MathChallenge> = [
 ];
 
 // ─── AGE 8 ─── ordered easy → hard
-const age8Gens: Array<() => MathChallenge> = [
+const age8Gens: Array<(lang: Lang) => MathChallenge> = [
   // mult tables 2-10
   () => {
     const a = rand(2, 10), b = rand(2, 10);
@@ -157,11 +157,11 @@ const age8Gens: Array<() => MathChallenge> = [
     return build(`${a} × ${a} = ?`, a * a, 6);
   },
   // fraction of
-  () => {
+  (lang) => {
     const denom = pick([2, 3, 4, 5]);
     const mult = rand(2, 8);
     const total = denom * mult;
-    return build(`1/${denom} of ${total} = ?`, mult, 3);
+    return build(translate(lang, "fractionOf", { d: denom, n: total }), mult, 3);
   },
   // missing dividend
   () => {
@@ -186,17 +186,17 @@ const age8Gens: Array<() => MathChallenge> = [
 ];
 
 // ─── AGE 9 ─── ordered easy → hard
-const age9Gens: Array<() => MathChallenge> = [
+const age9Gens: Array<(lang: Lang) => MathChallenge> = [
   // 3-digit add (easy bigger numbers)
   () => {
     const a = rand(100, 800), b = rand(100, 800);
     return build(`${a} + ${b} = ?`, a + b, 15);
   },
   // percent of 100
-  () => {
+  (lang) => {
     const p = pick([10, 20, 25, 50, 75]);
     const n = pick([100, 200, 400, 60, 80, 40]);
-    return build(`${p}% of ${n} = ?`, (p * n) / 100, 8);
+    return build(translate(lang, "percentOf", { p, n }), (p * n) / 100, 8);
   },
   // fraction add same denom
   () => {
@@ -236,14 +236,14 @@ const age9Gens: Array<() => MathChallenge> = [
     return build(`${a} × ${b} + ${c} = ?`, a * b + c, 6);
   },
   // average of 3
-  () => {
+  (lang) => {
     const x = rand(2, 20), y = rand(2, 20), z = rand(2, 20);
     const sum = x + y + z;
     if (sum % 3 !== 0) {
       const extra = (3 - (sum % 3)) % 3;
-      return build(`Average of ${x}, ${y}, ${z + extra} = ?`, (sum + extra) / 3, 4);
+      return build(translate(lang, "averageOf", { x, y, z: z + extra }), (sum + extra) / 3, 4);
     }
-    return build(`Average of ${x}, ${y}, ${z} = ?`, sum / 3, 4);
+    return build(translate(lang, "averageOf", { x, y, z }), sum / 3, 4);
   },
   // multi-step: a × b − c
   () => {
