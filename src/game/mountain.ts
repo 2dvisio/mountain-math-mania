@@ -53,14 +53,26 @@ export function generateMountain(level: number): Grid {
       }
 
       const block: Block = { kind };
-      // Monster hidden in ~12% of solid non-grass blocks (more in higher levels)
-      const monsterChance = 0.08 + Math.min(0.12, level * 0.01);
+      // Monster hidden in solid non-grass blocks. Much higher spawn rate so kids meet monsters quickly.
+      const monsterChance = 0.25 + Math.min(0.2, level * 0.02);
       if (kind !== "grass" && Math.random() < monsterChance) {
         block.monster = MONSTERS[rand(0, MONSTERS.length - 1)];
       }
       grid[row][c] = block;
     }
   }
+
+  // Place a GOAL block roughly in the middle of the mountain.
+  // Pick the tallest column near the center and put the goal at its mid-height.
+  const midCol = Math.floor(width / 2);
+  let goalCol = midCol;
+  for (let off = 0; off <= 2; off++) {
+    if (heights[midCol + off] >= 2) { goalCol = midCol + off; break; }
+    if (heights[midCol - off] >= 2) { goalCol = midCol - off; break; }
+  }
+  const goalHeight = heights[goalCol];
+  const goalRow = height - 1 - Math.floor(goalHeight / 2);
+  grid[goalRow][goalCol] = { kind: "goal" };
 
   return grid;
 }
@@ -84,6 +96,7 @@ export function isAccessible(grid: Grid, row: number, col: number): boolean {
 }
 
 export function isCleared(grid: Grid): boolean {
-  for (const row of grid) for (const b of row) if (b.kind !== "air") return false;
+  // Level ends when the goal block is gone (or no blocks remain).
+  for (const row of grid) for (const b of row) if (b.kind === "goal") return false;
   return true;
 }

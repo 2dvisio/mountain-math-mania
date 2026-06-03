@@ -122,12 +122,15 @@ export function Game() {
       newGrid[row][col] = { kind: "air" };
       setGrid(newGrid);
 
-      if (kindPoints > 0) {
+      if (bonus > 0) {
+        toast.success(`+${totalPoints} points!`);
+      } else if (kindPoints > 0) {
         const labels: Record<string, string> = {
           coal: "Coal +10",
           iron: "Iron +25",
           gold: "Gold +50",
           diamond: "Diamond +100",
+          goal: "🏁 Goal reached! +200",
           grass: "+1",
           dirt: "+1",
           stone: "+2",
@@ -233,7 +236,7 @@ export function Game() {
             </div>
             <HUD score={score} lives={lives} level={level} highScore={highScore} />
             <p className="mt-2 text-center text-xs text-muted-foreground">
-              Blocks left: <strong>{blocksLeft}</strong> · Tap a block on the edge to mine it!
+              Mine to the ⭐ <strong>goal</strong> to finish the level! Blocks left: <strong>{blocksLeft}</strong>
             </p>
             <div className="mt-4">
               <Mountain grid={grid} onMine={handleMine} />
