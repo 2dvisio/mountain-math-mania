@@ -6,7 +6,8 @@ export type BlockKind =
   | "coal"
   | "iron"
   | "gold"
-  | "diamond";
+  | "diamond"
+  | "goal";
 
 export type MonsterKind = "zombie" | "skeleton" | "enderman";
 
@@ -20,6 +21,7 @@ export type Grid = Block[][];
 
 export const ORE_POINTS: Record<BlockKind, number> = {
   air: 0,
+  goal: 200,
   grass: 1,
   dirt: 1,
   stone: 2,
