@@ -236,7 +236,7 @@ export function Game() {
             </div>
             <HUD score={score} lives={lives} level={level} highScore={highScore} />
             <p className="mt-2 text-center text-xs text-muted-foreground">
-              Blocks left: <strong>{blocksLeft}</strong> · Tap a block on the edge to mine it!
+              Mine to the ⭐ <strong>goal</strong> to finish the level! Blocks left: <strong>{blocksLeft}</strong>
             </p>
             <div className="mt-4">
               <Mountain grid={grid} onMine={handleMine} />
