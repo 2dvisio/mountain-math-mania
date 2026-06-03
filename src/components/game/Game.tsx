@@ -105,8 +105,9 @@ export function Game() {
   const handleMine = useCallback(
     (row: number, col: number) => {
       if (!isAccessible(grid, row, col)) return;
+      const kind = grid[row][col].kind;
       setPending({ row, col });
-      setChallenge(randomChallenge(age, level));
+      setChallenge(randomChallenge(age, level, kind));
       setScreen("challenge");
     },
     [grid, level, age],

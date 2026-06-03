@@ -226,39 +226,39 @@ function analogy(): PuzzleChallenge {
 
 // ─── Per-age pools ──────────────────────────────────────────────────────
 
+// Per-age pools, ordered easy → hard
 const age6: Array<() => PuzzleChallenge> = [
-  seqAB,
-  seqAB,
   shapeMatch,
+  seqAB,
   oddOneOut,
-  () => numberSeqArith(5, 2), // +1, +2
+  () => numberSeqArith(5, 2),
 ];
 
 const age7: Array<() => PuzzleChallenge> = [
+  shapeMatch,
   seqAB,
+  oddOneOut,
   seqABC,
   seqAABB,
-  oddOneOut,
   () => numberSeqArith(10, 3),
-  shapeMatch,
 ];
 
 const age8: Array<() => PuzzleChallenge> = [
+  oddOneOut,
   seqABC,
   seqAABB,
-  oddOneOut,
   () => numberSeqArith(15, 5),
-  () => numberSeqGeo(),
   analogy,
+  () => numberSeqGeo(),
 ];
 
 const age9: Array<() => PuzzleChallenge> = [
+  oddOneOut,
   seqAABB,
+  analogy,
   () => numberSeqArith(20, 7),
   () => numberSeqGeo(),
   () => numberSeqSquares(),
-  analogy,
-  oddOneOut,
 ];
 
 const POOLS: Record<number, Array<() => PuzzleChallenge>> = {
@@ -268,7 +268,18 @@ const POOLS: Record<number, Array<() => PuzzleChallenge>> = {
   9: age9,
 };
 
-export function generatePuzzle(age: number): PuzzleChallenge {
+function pickByDifficulty<T>(pool: T[], difficulty: number): T {
+  const n = pool.length;
+  if (n <= 1) return pool[0];
+  const d = Math.max(0, Math.min(5, difficulty));
+  const winSize = Math.max(2, Math.ceil(n / 2));
+  const maxStart = n - winSize;
+  const start = Math.round((d / 5) * maxStart);
+  const slice = pool.slice(start, start + winSize);
+  return slice[Math.floor(Math.random() * slice.length)];
+}
+
+export function generatePuzzle(age: number, difficulty = 2): PuzzleChallenge {
   const pool = POOLS[Math.max(6, Math.min(9, age))];
-  return pick(pool)();
+  return pickByDifficulty(pool, difficulty)();
 }
