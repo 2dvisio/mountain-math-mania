@@ -259,14 +259,14 @@ const age9Gens: Array<(lang: Lang) => MathChallenge> = [
     return build(`(${a} ${op} ${b}) × ${c} = ?`, ans, 8);
   },
   // division with remainder (hardest)
-  () => {
+  (lang) => {
     const divisor = rand(3, 9), q = rand(3, 12), r = rand(1, divisor - 1);
     const dividend = divisor * q + r;
-    return build(`${dividend} ÷ ${divisor} = ? (whole part)`, q, 3);
+    return build(translate(lang, "wholePart", { a: dividend, b: divisor }), q, 3);
   },
 ];
 
-const POOLS: Record<number, Array<() => MathChallenge>> = {
+const POOLS: Record<number, Array<(lang: Lang) => MathChallenge>> = {
   6: age6Gens,
   7: age7Gens,
   8: age8Gens,
@@ -289,7 +289,8 @@ function pickByDifficulty<T>(pool: T[], difficulty: number): T {
   return slice[Math.floor(Math.random() * slice.length)];
 }
 
-export function generateMath(age: number, difficulty = 2): MathChallenge {
+export function generateMath(age: number, difficulty = 2, lang: Lang = "en"): MathChallenge {
   const pool = POOLS[Math.max(6, Math.min(9, age))];
-  return pickByDifficulty(pool, difficulty)();
+  return pickByDifficulty(pool, difficulty)(lang);
 }
+
