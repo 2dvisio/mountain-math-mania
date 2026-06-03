@@ -24,7 +24,7 @@ type Screen =
   | "levelComplete"
   | "gameOver";
 
-const STORAGE_KEY = "mc-mountain-save-v1";
+const STORAGE_KEY = "mountain-search-save-v1";
 
 interface SaveData {
   highScore: number;
@@ -224,7 +224,7 @@ export function Game() {
           <>
             <div className="mb-3 flex items-center justify-between">
               <h1 className="text-2xl font-extrabold text-foreground drop-shadow-sm">
-                ⛏️ Minecraft Mountain
+                ⛏️ Mountain Search
               </h1>
               <button
                 onClick={() => setScreen("ageSelect")}
@@ -292,7 +292,7 @@ function TitleScreen({ highScore, onStart }: { highScore: number; onStart: () =>
     <div className="grid min-h-[80vh] place-items-center">
       <div className="w-full max-w-lg rounded-2xl border-4 border-primary bg-card p-8 text-center shadow-2xl animate-pop">
         <div className="mb-4 text-6xl">⛏️ ⛰️</div>
-        <h1 className="text-4xl font-extrabold tracking-tight">Minecraft Mountain</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight">Mountain Search</h1>
         <p className="mt-2 text-muted-foreground">
           Mine the mountain block by block. Solve math and puzzles, grab diamonds, and beat monsters!
         </p>
