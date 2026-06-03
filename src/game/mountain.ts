@@ -62,16 +62,26 @@ export function generateMountain(level: number): Grid {
     }
   }
 
-  // Place a GOAL block roughly in the middle of the mountain.
-  // Pick the tallest column near the center and put the goal at its mid-height.
+  // Place the GOAL block buried DEEP inside the mountain — near the bottom
+  // of the tallest central column so kids must mine through many layers.
   const midCol = Math.floor(width / 2);
   let goalCol = midCol;
-  for (let off = 0; off <= 2; off++) {
-    if (heights[midCol + off] >= 2) { goalCol = midCol + off; break; }
-    if (heights[midCol - off] >= 2) { goalCol = midCol - off; break; }
+  let bestH = heights[midCol];
+  // Search within ±25% of the width for the tallest column.
+  const searchRadius = Math.max(1, Math.floor(width * 0.25));
+  for (let off = 1; off <= searchRadius; off++) {
+    if (midCol + off < width && heights[midCol + off] > bestH) {
+      bestH = heights[midCol + off];
+      goalCol = midCol + off;
+    }
+    if (midCol - off >= 0 && heights[midCol - off] > bestH) {
+      bestH = heights[midCol - off];
+      goalCol = midCol - off;
+    }
   }
-  const goalHeight = heights[goalCol];
-  const goalRow = height - 1 - Math.floor(goalHeight / 2);
+  // Bury 1-2 blocks above the bottom of that column.
+  const goalDepthFromBottom = bestH >= 4 ? 1 : 0;
+  const goalRow = height - 1 - goalDepthFromBottom;
   grid[goalRow][goalCol] = { kind: "goal" };
 
   return grid;
