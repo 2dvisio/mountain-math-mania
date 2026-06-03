@@ -31,6 +31,29 @@ export function Block({ block, size, accessible, onClick }: Props) {
   }
   const style = KIND_STYLES[block.kind];
   const oreColor = ORE_DOTS[block.kind];
+
+  if (block.kind === "goal") {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={!accessible}
+        aria-label={`goal block${accessible ? ", click to mine" : ""}`}
+        className={`relative grid place-items-center rounded-md ${
+          accessible ? "cursor-pointer hover:brightness-110 ring-2 ring-accent z-10" : "cursor-not-allowed opacity-95"
+        }`}
+        style={{
+          width: size,
+          height: size,
+          background: "radial-gradient(circle, var(--accent), var(--gold))",
+          boxShadow: "0 0 12px var(--gold), inset 2px 2px 0 rgb(255 255 255 / 0.4), inset -2px -2px 0 rgb(0 0 0 / 0.25)",
+          animation: "pop 1.2s ease-in-out infinite alternate",
+        }}
+      >
+        <span style={{ fontSize: size * 0.7 }} aria-hidden>⭐</span>
+      </button>
+    );
+  }
   return (
     <button
       type="button"
