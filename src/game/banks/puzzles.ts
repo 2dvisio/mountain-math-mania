@@ -1,5 +1,6 @@
 // Puzzle generators by age. Combined sub-generators yield 500+ unique
 // puzzles per age (most are parametric with large combinatorial spaces).
+import { translate, type Lang } from "@/i18n";
 
 function rand(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -38,7 +39,7 @@ const ARROWS_ROT = ["⬆️", "➡️", "⬇️", "⬅️"];
 const SYMBOL_POOLS = [SHAPES, COLORS, ANIMALS, FRUITS, NATURE];
 
 // ─── Visual sequence: AB AB AB ? ─────────────────────────────────────────
-function seqAB(): PuzzleChallenge {
+function seqAB(lang: Lang): PuzzleChallenge {
   const pool = pick(SYMBOL_POOLS);
   const [a, b] = shuffle(pool).slice(0, 2);
   const seq = [a, b, a, b, a];
@@ -47,7 +48,7 @@ function seqAB(): PuzzleChallenge {
   return {
     type: "puzzle",
     variant: "sequence",
-    prompt: "What comes next?",
+    prompt: translate(lang, "whatComesNext"),
     sequence: seq,
     options: shuffle([answer, ...distractors]),
     answer,
@@ -55,7 +56,7 @@ function seqAB(): PuzzleChallenge {
 }
 
 // ABC ABC ABC ?
-function seqABC(): PuzzleChallenge {
+function seqABC(lang: Lang): PuzzleChallenge {
   const pool = pick(SYMBOL_POOLS);
   const [a, b, c] = shuffle(pool).slice(0, 3);
   const seq = [a, b, c, a, b, c, a];
@@ -64,7 +65,7 @@ function seqABC(): PuzzleChallenge {
   return {
     type: "puzzle",
     variant: "sequence",
-    prompt: "What comes next?",
+    prompt: translate(lang, "whatComesNext"),
     sequence: seq,
     options: shuffle([answer, ...distractors]),
     answer,
@@ -72,7 +73,7 @@ function seqABC(): PuzzleChallenge {
 }
 
 // AABB AABB ?
-function seqAABB(): PuzzleChallenge {
+function seqAABB(lang: Lang): PuzzleChallenge {
   const pool = pick(SYMBOL_POOLS);
   const [a, b] = shuffle(pool).slice(0, 2);
   const seq = [a, a, b, b, a, a, b];
@@ -81,7 +82,7 @@ function seqAABB(): PuzzleChallenge {
   return {
     type: "puzzle",
     variant: "sequence",
-    prompt: "What comes next?",
+    prompt: translate(lang, "whatComesNext"),
     sequence: seq,
     options: shuffle([answer, ...distractors]),
     answer,
@@ -89,14 +90,14 @@ function seqAABB(): PuzzleChallenge {
 }
 
 // Shape match (target)
-function shapeMatch(): PuzzleChallenge {
+function shapeMatch(lang: Lang): PuzzleChallenge {
   const pool = pick(SYMBOL_POOLS);
   const target = pick(pool);
   const distractors = shuffle(pool.filter((s) => s !== target)).slice(0, 3);
   return {
     type: "puzzle",
     variant: "shape",
-    prompt: "Which one matches?",
+    prompt: translate(lang, "whichMatches"),
     target,
     options: shuffle([target, ...distractors]),
     answer: target,
@@ -104,7 +105,7 @@ function shapeMatch(): PuzzleChallenge {
 }
 
 // Odd one out (3 same family + 1 different)
-function oddOneOut(): PuzzleChallenge {
+function oddOneOut(lang: Lang): PuzzleChallenge {
   const family = pick(SYMBOL_POOLS);
   const otherPool = pick(SYMBOL_POOLS.filter((p) => p !== family));
   const same = shuffle(family).slice(0, 3);
@@ -112,14 +113,14 @@ function oddOneOut(): PuzzleChallenge {
   return {
     type: "puzzle",
     variant: "oddOneOut",
-    prompt: "Which one doesn't belong?",
+    prompt: translate(lang, "whichOdd"),
     options: shuffle([...same, odd]),
     answer: odd,
   };
 }
 
 // Number sequence: arithmetic
-function numberSeqArith(maxStart: number, maxStep: number): PuzzleChallenge {
+function numberSeqArith(lang: Lang, maxStart: number, maxStep: number): PuzzleChallenge {
   const start = rand(1, maxStart);
   const step = rand(1, maxStep);
   const seq = [start, start + step, start + 2 * step, start + 3 * step];
@@ -132,7 +133,7 @@ function numberSeqArith(maxStart: number, maxStep: number): PuzzleChallenge {
   return {
     type: "puzzle",
     variant: "numberSeq",
-    prompt: "What number comes next?",
+    prompt: translate(lang, "whatNumberNext"),
     sequence: seq.map(String),
     options: shuffle([...opts]).map(String),
     answer: String(answer),
@@ -140,7 +141,7 @@ function numberSeqArith(maxStart: number, maxStep: number): PuzzleChallenge {
 }
 
 // Number sequence: geometric (×)
-function numberSeqGeo(): PuzzleChallenge {
+function numberSeqGeo(lang: Lang): PuzzleChallenge {
   const start = rand(1, 4);
   const factor = pick([2, 3]);
   const seq = [start, start * factor, start * factor ** 2, start * factor ** 3];
@@ -153,7 +154,7 @@ function numberSeqGeo(): PuzzleChallenge {
   return {
     type: "puzzle",
     variant: "numberSeq",
-    prompt: "What comes next? (multiply pattern)",
+    prompt: translate(lang, "whatNextMul"),
     sequence: seq.map(String),
     options: shuffle([...opts]).map(String),
     answer: String(answer),
@@ -161,7 +162,7 @@ function numberSeqGeo(): PuzzleChallenge {
 }
 
 // Number sequence: squares / triangular
-function numberSeqSquares(): PuzzleChallenge {
+function numberSeqSquares(lang: Lang): PuzzleChallenge {
   const start = rand(1, 4);
   const seq = [start, start + 1, start + 2, start + 3].map((n) => n * n);
   const answer = (start + 4) * (start + 4);
@@ -173,7 +174,7 @@ function numberSeqSquares(): PuzzleChallenge {
   return {
     type: "puzzle",
     variant: "numberSeq",
-    prompt: "What comes next?",
+    prompt: translate(lang, "whatComesNext"),
     sequence: seq.map(String),
     options: shuffle([...opts]).map(String),
     answer: String(answer),
@@ -206,7 +207,7 @@ const ANALOGY_RELATIONS: Array<[string, string][]> = [
   ],
 ];
 
-function analogy(): PuzzleChallenge {
+function analogy(lang: Lang): PuzzleChallenge {
   const rel = pick(ANALOGY_RELATIONS);
   const [a, b] = pick(rel);
   const other = pick(rel.filter(([x]) => x !== a));
@@ -217,7 +218,7 @@ function analogy(): PuzzleChallenge {
   return {
     type: "puzzle",
     variant: "analogy",
-    prompt: "Same idea — fill in the blank",
+    prompt: translate(lang, "sameIdea"),
     analogy: { a, b, c },
     options: shuffle([answer, ...distractors]),
     answer,
@@ -227,41 +228,41 @@ function analogy(): PuzzleChallenge {
 // ─── Per-age pools ──────────────────────────────────────────────────────
 
 // Per-age pools, ordered easy → hard
-const age6: Array<() => PuzzleChallenge> = [
+const age6: Array<(lang: Lang) => PuzzleChallenge> = [
   shapeMatch,
   seqAB,
   oddOneOut,
-  () => numberSeqArith(5, 2),
+  (l) => numberSeqArith(l, 5, 2),
 ];
 
-const age7: Array<() => PuzzleChallenge> = [
+const age7: Array<(lang: Lang) => PuzzleChallenge> = [
   shapeMatch,
   seqAB,
   oddOneOut,
   seqABC,
   seqAABB,
-  () => numberSeqArith(10, 3),
+  (l) => numberSeqArith(l, 10, 3),
 ];
 
-const age8: Array<() => PuzzleChallenge> = [
+const age8: Array<(lang: Lang) => PuzzleChallenge> = [
   oddOneOut,
   seqABC,
   seqAABB,
-  () => numberSeqArith(15, 5),
+  (l) => numberSeqArith(l, 15, 5),
   analogy,
-  () => numberSeqGeo(),
+  (l) => numberSeqGeo(l),
 ];
 
-const age9: Array<() => PuzzleChallenge> = [
+const age9: Array<(lang: Lang) => PuzzleChallenge> = [
   oddOneOut,
   seqAABB,
   analogy,
-  () => numberSeqArith(20, 7),
-  () => numberSeqGeo(),
-  () => numberSeqSquares(),
+  (l) => numberSeqArith(l, 20, 7),
+  (l) => numberSeqGeo(l),
+  (l) => numberSeqSquares(l),
 ];
 
-const POOLS: Record<number, Array<() => PuzzleChallenge>> = {
+const POOLS: Record<number, Array<(lang: Lang) => PuzzleChallenge>> = {
   6: age6,
   7: age7,
   8: age8,
@@ -279,7 +280,7 @@ function pickByDifficulty<T>(pool: T[], difficulty: number): T {
   return slice[Math.floor(Math.random() * slice.length)];
 }
 
-export function generatePuzzle(age: number, difficulty = 2): PuzzleChallenge {
+export function generatePuzzle(age: number, difficulty = 2, lang: Lang = "en"): PuzzleChallenge {
   const pool = POOLS[Math.max(6, Math.min(9, age))];
-  return pickByDifficulty(pool, difficulty)();
+  return pickByDifficulty(pool, difficulty)(lang);
 }

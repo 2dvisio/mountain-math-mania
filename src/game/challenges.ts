@@ -1,6 +1,7 @@
 import { generateMath } from "./banks/math";
 import { generatePuzzle, type PuzzleChallenge } from "./banks/puzzles";
 import { ORE_POINTS, type BlockKind } from "./types";
+import type { Lang } from "@/i18n";
 
 export interface MathChallenge {
   type: "math";
@@ -34,10 +35,11 @@ export function randomChallenge(
   age: number,
   _level: number,
   kind: BlockKind = "stone",
+  lang: Lang = "en",
 ): Challenge {
   const difficulty = difficultyForKind(kind);
   // ~60% math, 40% puzzle so kids practice arithmetic regularly.
   return Math.random() < 0.6
-    ? generateMath(age, difficulty)
-    : generatePuzzle(age, difficulty);
+    ? generateMath(age, difficulty, lang)
+    : generatePuzzle(age, difficulty, lang);
 }

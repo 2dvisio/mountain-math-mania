@@ -5,6 +5,7 @@ import { HUD } from "@/components/game/HUD";
 import { ChallengeModal } from "@/components/game/ChallengeModal";
 import { CombatModal } from "@/components/game/CombatModal";
 import { AgeSelect } from "@/components/game/AgeSelect";
+import { LanguageSelect } from "@/components/game/LanguageSelect";
 import {
   type Grid,
   type MonsterKind,
@@ -14,9 +15,11 @@ import {
 } from "@/game/types";
 import { generateMountain, isAccessible, isCleared } from "@/game/mountain";
 import { randomChallenge, type Challenge } from "@/game/challenges";
+import { useI18n, type Lang } from "@/i18n";
 
 type Screen =
   | "title"
+  | "languageSelect"
   | "ageSelect"
   | "playing"
   | "challenge"
@@ -51,6 +54,7 @@ function saveSave(data: SaveData) {
 }
 
 export function Game() {
+  const { t, lang, setLang } = useI18n();
   const [screen, setScreen] = useState<Screen>("title");
   const [age, setAge] = useState<number>(7);
   const [level, setLevel] = useState(1);
@@ -85,8 +89,13 @@ export function Game() {
     setScore(0);
     setGrid(generateMountain(1));
     nextLifeAt.current = LIFE_BONUS_EVERY;
-    setScreen("ageSelect");
+    setScreen("languageSelect");
   }, []);
+
+  const handleLanguagePick = useCallback((picked: Lang) => {
+    setLang(picked);
+    setScreen("ageSelect");
+  }, [setLang]);
 
   const handleAgePick = useCallback((picked: number) => {
     setAge(picked);
@@ -107,10 +116,10 @@ export function Game() {
       if (!isAccessible(grid, row, col)) return;
       const kind = grid[row][col].kind;
       setPending({ row, col });
-      setChallenge(randomChallenge(age, level, kind));
+      setChallenge(randomChallenge(age, level, kind, lang));
       setScreen("challenge");
     },
-    [grid, level, age],
+    [grid, level, age, lang],
   );
 
   const removeBlockAndReward = useCallback(
@@ -124,14 +133,14 @@ export function Game() {
       setGrid(newGrid);
 
       if (bonus > 0) {
-        toast.success(`+${totalPoints} points!`);
+        toast.success(t("pointsPlus", { p: totalPoints }));
       } else if (kindPoints > 0) {
         const labels: Record<string, string> = {
-          coal: "Coal +10",
-          iron: "Iron +25",
-          gold: "Gold +50",
-          diamond: "Diamond +100",
-          goal: "🏁 Goal reached! +200",
+          coal: t("oreCoal"),
+          iron: t("oreIron"),
+          gold: t("oreGold"),
+          diamond: t("oreDiamond"),
+          goal: t("oreGoal"),
           grass: "+1",
           dirt: "+1",
           stone: "+2",
@@ -144,7 +153,7 @@ export function Game() {
         while (next >= nextLifeAt.current) {
           setLives((l) => {
             if (l < MAX_LIVES) {
-              toast.success("❤️ Extra life!");
+              toast.success(t("extraLife"));
               return l + 1;
             }
             return l;
@@ -160,7 +169,7 @@ export function Game() {
         setScreen("playing");
       }
     },
-    [grid],
+    [grid, t],
   );
 
   const handleChallengeResult = useCallback(
@@ -170,7 +179,7 @@ export function Game() {
       setChallenge(null);
 
       if (!correct) {
-        toast.error("Not quite! Try a different block.");
+        toast.error(t("notQuite"));
         setPending(null);
         setScreen("playing");
         return;
@@ -185,7 +194,7 @@ export function Game() {
         removeBlockAndReward(row, col);
       }
     },
-    [pending, grid, removeBlockAndReward],
+    [pending, grid, removeBlockAndReward, t],
   );
 
   const handleCombatEnd = useCallback(
@@ -195,7 +204,7 @@ export function Game() {
       setPending(null);
 
       if (won && target) {
-        toast.success(`Monster defeated! +${points}`);
+        toast.success(t("monsterDefeated", { p: points }));
         removeBlockAndReward(target.row, target.col, points);
       } else {
         setLives((l) => {
@@ -203,14 +212,14 @@ export function Game() {
           if (next <= 0) {
             window.setTimeout(() => setScreen("gameOver"), 200);
           } else {
-            toast.error("Ouch! You lost a life.");
+            toast.error(t("ouch"));
             setScreen("playing");
           }
           return Math.max(0, next);
         });
       }
     },
-    [pending, removeBlockAndReward],
+    [pending, removeBlockAndReward, t],
   );
 
   const blocksLeft = useMemo(
@@ -221,24 +230,34 @@ export function Game() {
   return (
     <div className="min-h-screen sky-bg">
       <div className="mx-auto max-w-3xl px-4 py-4">
-        {screen !== "title" && screen !== "gameOver" && screen !== "ageSelect" && (
+        {screen !== "title" && screen !== "gameOver" && screen !== "ageSelect" && screen !== "languageSelect" && (
           <>
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex items-center justify-between gap-2">
               <h1 className="text-2xl font-extrabold text-foreground drop-shadow-sm">
-                ⛏️ Mountain Search
+                ⛏️ {t("title")}
               </h1>
-              <button
-                onClick={() => setScreen("ageSelect")}
-                className="btn-pixel rounded-md bg-secondary px-3 py-1 text-xs font-bold"
-                aria-label="Change age"
-              >
-                Age: {age}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setScreen("languageSelect")}
+                  className="btn-pixel rounded-md bg-secondary px-3 py-1 text-xs font-bold"
+                  aria-label={t("language")}
+                >
+                  🌍 {lang.toUpperCase()}
+                </button>
+                <button
+                  onClick={() => setScreen("ageSelect")}
+                  className="btn-pixel rounded-md bg-secondary px-3 py-1 text-xs font-bold"
+                  aria-label={t("age")}
+                >
+                  {t("age")}: {age}
+                </button>
+              </div>
             </div>
             <HUD score={score} lives={lives} level={level} highScore={highScore} />
-            <p className="mt-2 text-center text-xs text-muted-foreground">
-              Mine to the ⭐ <strong>goal</strong> to finish the level! Blocks left: <strong>{blocksLeft}</strong>
-            </p>
+            <p
+              className="mt-2 text-center text-xs text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: `${t("goalLine")} <strong>${blocksLeft}</strong>` }}
+            />
             <div className="mt-4">
               <Mountain grid={grid} onMine={handleMine} />
             </div>
@@ -246,6 +265,8 @@ export function Game() {
         )}
 
         {screen === "title" && <TitleScreen highScore={highScore} onStart={startGame} />}
+
+        {screen === "languageSelect" && <LanguageSelect onPick={handleLanguagePick} />}
 
         {screen === "ageSelect" && <AgeSelect onPick={handleAgePick} />}
 
@@ -259,27 +280,27 @@ export function Game() {
 
         {screen === "levelComplete" && (
           <Overlay
-            title="🏆 Mountain Cleared!"
-            subtitle={`You finished level ${level}!`}
+            title={t("mountainCleared")}
+            subtitle={t("finishedLevel", { n: level })}
             stats={[
-              { label: "Score", value: score },
-              { label: "Lives", value: `${lives} / ${MAX_LIVES}` },
+              { label: t("score"), value: score },
+              { label: t("lives"), value: `${lives} / ${MAX_LIVES}` },
             ]}
-            actionLabel="Next Level →"
+            actionLabel={t("nextLevel")}
             onAction={startNextLevel}
           />
         )}
 
         {screen === "gameOver" && (
           <Overlay
-            title="💥 Game Over"
-            subtitle="You ran out of lives."
+            title={t("gameOver")}
+            subtitle={t("ranOutLives")}
             stats={[
-              { label: "Final Score", value: score },
-              { label: "Best", value: highScore },
-              { label: "Level", value: level },
+              { label: t("finalScore"), value: score },
+              { label: t("best"), value: highScore },
+              { label: t("level"), value: level },
             ]}
-            actionLabel="Play Again"
+            actionLabel={t("playAgain")}
             onAction={startGame}
           />
         )}
@@ -289,34 +310,31 @@ export function Game() {
 }
 
 function TitleScreen({ highScore, onStart }: { highScore: number; onStart: () => void }) {
+  const { t } = useI18n();
   return (
     <div className="grid min-h-[80vh] place-items-center">
       <div className="w-full max-w-lg rounded-2xl border-4 border-primary bg-card p-8 text-center shadow-2xl animate-pop">
         <div className="mb-4 text-6xl">⛏️ ⛰️</div>
-        <h1 className="text-4xl font-extrabold tracking-tight">Mountain Search</h1>
-        <p className="mt-2 text-muted-foreground">
-          Mine the mountain block by block. Solve math and puzzles, grab diamonds, and beat monsters!
-        </p>
+        <h1 className="text-4xl font-extrabold tracking-tight">{t("title")}</h1>
+        <p className="mt-2 text-muted-foreground">{t("tagline")}</p>
         <div className="my-6 rounded-lg bg-muted p-4 text-left text-sm">
-          <p className="mb-1 font-bold">How to play:</p>
+          <p className="mb-1 font-bold">{t("howToPlay")}</p>
           <ul className="list-disc space-y-1 pl-5">
-            <li>Tap any block on the <strong>edge</strong> of the mountain.</li>
-            <li>Solve a math problem or puzzle to mine it.</li>
-            <li>Watch out for monsters — tap fast to defeat them!</li>
-            <li>Every 500 points gives you an extra ❤️.</li>
-            <li>Bigger mountains scroll — swipe or scroll to see them all.</li>
+            {(["rule1", "rule2", "rule3", "rule4", "rule5"] as const).map((k) => (
+              <li key={k} dangerouslySetInnerHTML={{ __html: t(k) }} />
+            ))}
           </ul>
         </div>
         {highScore > 0 && (
           <p className="mb-4 text-sm text-muted-foreground">
-            Your best score: <strong className="text-foreground">{highScore}</strong>
+            {t("bestScore")} <strong className="text-foreground">{highScore}</strong>
           </p>
         )}
         <button
           onClick={onStart}
           className="btn-pixel rounded-xl bg-primary px-8 py-4 text-2xl font-extrabold text-primary-foreground"
         >
-          ▶ Start Game
+          {t("startGame")}
         </button>
       </div>
     </div>

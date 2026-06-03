@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MONSTER_HP, MONSTER_POINTS, type MonsterKind } from "@/game/types";
+import { useI18n } from "@/i18n";
 
 interface Props {
   monster: MonsterKind;
@@ -12,13 +13,9 @@ const MONSTER_EMOJI: Record<MonsterKind, string> = {
   enderman: "👾",
 };
 
-const MONSTER_NAME: Record<MonsterKind, string> = {
-  zombie: "Zombie",
-  skeleton: "Skeleton",
-  enderman: "Enderman",
-};
-
 export function CombatModal({ monster, onEnd }: Props) {
+  const { t } = useI18n();
+  const monsterName = t(monster);
   const maxHp = MONSTER_HP[monster];
   const [hp, setHp] = useState(maxHp);
   const [attacks, setAttacks] = useState(0);
@@ -64,7 +61,7 @@ export function CombatModal({ monster, onEnd }: Props) {
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4">
       <div className="w-full max-w-md rounded-xl bg-card p-6 shadow-2xl border-4 border-destructive animate-pop">
         <h2 className="mb-2 text-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
-          A {MONSTER_NAME[monster]} Appeared!
+          {t("monsterAppeared", { name: monsterName })}
         </h2>
 
         <div className="mb-3 h-4 w-full overflow-hidden rounded-full bg-muted border-2 border-border">
@@ -78,16 +75,16 @@ export function CombatModal({ monster, onEnd }: Props) {
           type="button"
           onClick={hit}
           className={`btn-pixel relative mx-auto mb-4 grid h-44 w-44 place-items-center rounded-xl bg-muted text-8xl ${hitFlash ? "brightness-150" : ""} ${enemyFlash ? "animate-shake" : ""}`}
-          aria-label={`Attack the ${MONSTER_NAME[monster]}`}
+          aria-label={t("attackThe", { name: monsterName })}
         >
           {MONSTER_EMOJI[monster]}
         </button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Tap the monster fast! HP: <strong>{hp}</strong> / {maxHp}
+          {t("tapFast")} <strong>{hp}</strong> / {maxHp}
         </p>
         <p className="mt-1 text-center text-xs text-muted-foreground">
-          Monster attacks left until you lose a life: <strong>{Math.max(0, 3 - attacks)}</strong>
+          {t("attacksLeft")} <strong>{Math.max(0, 3 - attacks)}</strong>
         </p>
       </div>
     </div>
