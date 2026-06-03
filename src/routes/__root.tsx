@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Mountain Search" },
+      { name: "description", content: "Mountain Math Mania is an educational game where players solve math puzzles to mine blocks from mountains." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Mountain Search" },
+      { property: "og:description", content: "Mountain Math Mania is an educational game where players solve math puzzles to mine blocks from mountains." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Mountain Search" },
+      { name: "twitter:description", content: "Mountain Math Mania is an educational game where players solve math puzzles to mine blocks from mountains." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03942041-befb-440a-927c-3051aeea319f/id-preview-06e6f696--f7b75cf2-8509-4551-8b8d-2c7c3eac1b44.lovable.app-1780512280537.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03942041-befb-440a-927c-3051aeea319f/id-preview-06e6f696--f7b75cf2-8509-4551-8b8d-2c7c3eac1b44.lovable.app-1780512280537.png" },
     ],
     links: [
       {
