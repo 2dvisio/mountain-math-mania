@@ -122,12 +122,15 @@ export function Game() {
       newGrid[row][col] = { kind: "air" };
       setGrid(newGrid);
 
-      if (kindPoints > 0) {
+      if (bonus > 0) {
+        toast.success(`+${totalPoints} points!`);
+      } else if (kindPoints > 0) {
         const labels: Record<string, string> = {
           coal: "Coal +10",
           iron: "Iron +25",
           gold: "Gold +50",
           diamond: "Diamond +100",
+          goal: "🏁 Goal reached! +200",
           grass: "+1",
           dirt: "+1",
           stone: "+2",
