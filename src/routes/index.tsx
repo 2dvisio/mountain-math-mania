@@ -5,13 +5,13 @@ import { Game } from "@/components/game/Game";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Minecraft Mountain — Mine, Solve, Conquer" },
+      { title: "Mountain Search — Mine, Solve, Conquer" },
       {
         name: "description",
         content:
-          "A kid-friendly mining game for ages 6-9. Solve math and puzzles to mine a Minecraft mountain, collect treasure, and beat monsters.",
+          "A kid-friendly mining game for ages 6-9. Solve math and puzzles to mine a blocky mountain, collect treasure, and beat monsters.",
       },
-      { property: "og:title", content: "Minecraft Mountain" },
+      { property: "og:title", content: "Mountain Search" },
       {
         property: "og:description",
         content: "Mine a blocky mountain. Solve math, grab diamonds, beat monsters!",

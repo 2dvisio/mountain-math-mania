@@ -1,4 +1,4 @@
-# Plan: Minecraft Mountain Game
+# Plan: Mountain Search Game
 
 ## Product Overview
 A 2D side-view pixel-art game where kids mine a block mountain. To remove a block they must solve a math problem or visual puzzle. Blocks can hide treasure (points) or monsters (tap-to-attack combat). 10 lives, score milestones restore lives. Clearing the mountain finishes the level.
@@ -83,7 +83,7 @@ GameState {
 
 ### Styling Direction
 - Pixel-art aesthetic via CSS: sharp edges, blocky sprites rendered as styled divs or inline SVG.
-- Minecraft-inspired palette: greens, browns, greys, blues — but semantic tokens in styles.css.
+- Blocky mountain palette: greens, browns, greys, blues — but semantic tokens in styles.css.
 - Kid-friendly UI: large tap targets, clear readable fonts, encouraging copy.
 - No animations that could trigger motion sensitivity — simple pop-in/out for blocks.
 
