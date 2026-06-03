@@ -2,6 +2,7 @@
 // that together produce well over 500 unique problems.
 
 import type { MathChallenge } from "../challenges";
+import { translate, type Lang } from "@/i18n";
 
 function rand(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
